@@ -5,6 +5,7 @@ import 'package:antibet/models/diary_entry.dart';
 import 'package:antibet/services/database_service.dart';
 import 'package:antibet/theme.dart';
 import 'package:antibet/widgets/gradient_card.dart';
+import 'package:antibet/core/theme/app_shadows.dart';
 
 class EntryFormScreen extends StatefulWidget {
   final String? entryId;
@@ -169,6 +170,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
             _existingEntry != null ? 'Редактировать запись' : 'Новая запись'),
@@ -184,6 +186,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                   children: [
                     GradientCard(
                       radius: AppRadius.md,
+                      shadowLevel: ShadowLevel.medium,
                       child: Padding(
                         padding: AppSpacing.paddingMd,
                         child: Row(
@@ -307,26 +310,53 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
           ],
         ),
         const SizedBox(height: AppSpacing.xs),
-        TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            hintText: 'Введите $label...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-            filled: true,
-            fillColor: Theme.of(context)
+        // Inset Shadow (правило 14–21 из .cursorrules)
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            color: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest
-                .withValues(alpha: 0.3),
+                .withValues(alpha: 0.25),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.dark
+                      ? 0.35
+                      : 0.06,
+                ), // темная тень сверху
+                Colors.transparent,
+                Colors.white.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.dark
+                      ? 0.04
+                      : 0.55,
+                ), // светлый блик снизу
+              ],
+              stops: const [0.0, 0.35, 1.0],
+            ),
+            boxShadow: AppShadows.inset(context),
           ),
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Пожалуйста, введите $label';
-            }
-            return null;
-          },
+          child: TextFormField(
+            controller: controller,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: 'Введите $label...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                borderSide: BorderSide.none,
+              ),
+              filled: false,
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Пожалуйста, введите $label';
+              }
+              return null;
+            },
+          ),
         ),
       ],
     );

@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:antibet/models/diary_entry.dart';
 import 'package:antibet/services/database_service.dart';
 import 'package:antibet/theme.dart';
-import 'package:antibet/widgets/styled_card.dart';
+import 'package:antibet/widgets/gradient_card.dart';
 
 class EntryWizardScreen extends StatefulWidget {
   const EntryWizardScreen({super.key});
@@ -369,140 +369,133 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     final controller = _getControllerForStep(index);
     final title = _titles[key]!;
     final help = _helpText[key]!;
+    // final icon = _icons[key]!; // Icon removed from UI
     final prompt = help.split('\n').first.trim();
     final isLastStep = index == 6;
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: Center(
-        child: SingleChildScrollView(
-          padding: AppSpacing.paddingLg,
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: StyledCard(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800, // Sharp Heading
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-
-                // Muted text for the prompt
-                Text(
-                  prompt,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 16,
-                        height: 1.5,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant, // Muted shade
-                      ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // "Some Action" button style (Посмотреть примеры)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white.withValues(alpha: 0.05)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Theme.of(context).brightness == Brightness.dark
-                          ? Border.all(
-                              color: Colors.white.withValues(alpha: 0.1))
-                          : null,
-                      boxShadow:
-                          Theme.of(context).brightness == Brightness.light
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ]
-                              : [],
+      child: ListView(
+        padding: AppSpacing.paddingLg,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: () => _showHelpBottomSheet(key),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          child: Text(
-                            'Посмотреть примеры',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ),
+              ),
+              const SizedBox(
+                  height: AppSpacing.sm), // Уменьшенный отступ после заголовка
+
+              // Muted text for the prompt (Contrast Rule)
+              Text(
+                prompt,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontSize: 18,
+                      height: 1.4,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant, // Muted
+                    ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => _showHelpBottomSheet(key),
+                  icon: Icon(
+                    Icons.lightbulb_outline,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  label: Text(
+                    'Посмотреть примеры',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-
-                const SizedBox(height: AppSpacing.xl),
-
-                // TextField Area
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.black.withValues(alpha: 0.3)
-                        : Colors.grey.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(16),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    alignment: Alignment.centerLeft,
                   ),
-                  child: TextField(
-                    controller: controller,
-                    autofocus: true,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: isLastStep
-                        ? TextInputAction.done
-                        : TextInputAction.next,
-                    onSubmitted: (_) {
-                      if (isLastStep) {
-                        _saveEntry();
-                      } else {
-                        _nextStep();
-                      }
-                    },
-                    maxLines: null,
-                    minLines: 6,
-                    decoration: InputDecoration(
-                      hintText: 'Ваш ответ...',
-                      hintStyle: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.5),
-                      ),
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      border: InputBorder.none,
-                      contentPadding: AppSpacing.paddingMd,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Highlighting Card for Input (Gradient Surface + Inset Shadow)
+          GradientCard(
+            simulateLight: true,
+            radius: AppRadius.lg,
+            shadowLevel: ShadowLevel.medium,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(
+                      alpha: Theme.of(context).brightness == Brightness.dark
+                          ? 0.35
+                          : 0.03, // Меньше тени в светлой теме
                     ),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          height: 1.5,
-                          fontSize: 16,
-                        ),
-                  ),
+                    Colors.transparent,
+                    Colors.white.withValues(
+                      alpha: Theme.of(context).brightness == Brightness.dark
+                          ? 0.03
+                          : 0.02, // Меньше блика в светлой теме
+                    ),
+                  ],
+                  stops: const [0.0, 0.3, 1.0],
                 ),
-              ],
+              ),
+              child: TextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction:
+                    isLastStep ? TextInputAction.done : TextInputAction.next,
+                onSubmitted: (_) {
+                  if (isLastStep) {
+                    _saveEntry();
+                  } else {
+                    _nextStep();
+                  }
+                },
+                maxLines: null,
+                minLines: 8,
+                decoration: InputDecoration(
+                  hintText: 'Ваш ответ...',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.5),
+                  ),
+                  filled: false,
+                  border: InputBorder.none,
+                  contentPadding: AppSpacing.paddingLg,
+                ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      height: 1.5,
+                      fontSize: 16,
+                    ),
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: AppSpacing.xxl),
+        ],
       ),
     );
   }
@@ -518,7 +511,6 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         _handleClose();
       },
       child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           centerTitle: true,
           title: Text(

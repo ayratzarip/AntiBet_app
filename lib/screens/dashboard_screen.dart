@@ -7,6 +7,7 @@ import 'package:antibet/services/database_service.dart';
 import 'package:antibet/services/export_service.dart';
 import 'package:antibet/theme.dart';
 import 'package:antibet/widgets/gradient_card.dart';
+import 'package:antibet/core/theme/app_shadows.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -160,22 +161,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: AppSpacing.paddingMd,
             child: Column(
               children: [
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Поиск записей...',
-                    prefixIcon: Icon(Icons.search,
-                        color: Theme.of(context).colorScheme.primary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    color: Theme.of(context)
                         .colorScheme
                         .surfaceContainerHighest
-                        .withValues(alpha: 0.3),
+                        .withValues(alpha: 0.25),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(
+                          alpha: Theme.of(context).brightness == Brightness.dark
+                              ? 0.25
+                              : 0.04,
+                        ),
+                        Colors.transparent,
+                        Colors.white.withValues(
+                          alpha: Theme.of(context).brightness == Brightness.dark
+                              ? 0.03
+                              : 0.5,
+                        ),
+                      ],
+                      stops: const [0.0, 0.35, 1.0],
+                    ),
+                    boxShadow: AppShadows.inset(context),
                   ),
-                  onChanged: _filterEntries,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Поиск записей...',
+                      prefixIcon: Icon(Icons.search,
+                          color: Theme.of(context).colorScheme.primary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: false,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                    ),
+                    onChanged: _filterEntries,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
@@ -279,6 +309,7 @@ class EntryCard extends StatelessWidget {
     return GradientCard(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       radius: AppRadius.md,
+      shadowLevel: ShadowLevel.small,
       onTap: onTap,
       child: Padding(
         padding: AppSpacing.paddingMd,
