@@ -1,0 +1,38 @@
+name: antibet
+description: "AntiBet is a serene and secure iOS diary designed to empower individuals on their journey to overcome gambling addiction, offering a private space for CBT self-monitoring with a calming, minimalist interface."
+publish_to: "none"
+version: 1.0.0
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.1.0
+  provider: ^6.1.2
+  go_router: ^16.2.0
+  sqflite: ^2.0.0
+  path: ^1.0.0
+  uuid: ^4.0.0
+  intl: 0.20.2
+  csv: ^6.0.0
+  share_plus: ^12.0.0
+  sqflite_common_ffi_web: ^1.0.0
+  sqflite_common_ffi: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icons/gambling_icon.jpg
+  remove_alpha_ios: true
