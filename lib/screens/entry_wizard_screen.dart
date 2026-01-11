@@ -123,7 +123,14 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Остаться'),
+            child: Text(
+              'Остаться',
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? DarkModeColors.iconColor
+                    : LightModeColors.iconColor,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -267,8 +274,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                       ),
                       child: Icon(
                         Icons.lightbulb_outline,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? DarkModeColors.iconColor
+                            : LightModeColors.iconColor,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -354,7 +362,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
             height: 8,
             decoration: BoxDecoration(
               color: isCompleted || isCurrent
-                  ? Theme.of(context).colorScheme.primary
+                  ? (Theme.of(context).brightness == Brightness.dark
+                      ? DarkModeColors.iconColor
+                      : LightModeColors.iconColor)
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(4),
             ),
@@ -369,99 +379,79 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     final controller = _getControllerForStep(index);
     final title = _titles[key]!;
     final help = _helpText[key]!;
-    // final icon = _icons[key]!; // Icon removed from UI
     final prompt = help.split('\n').first.trim();
     final isLastStep = index == 6;
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: ListView(
+      child: SingleChildScrollView(
         padding: AppSpacing.paddingLg,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Первая карточка: заголовок, описание и кнопка "Посмотреть примеры"
+            GradientCard(
+              radius: AppRadius.md,
+              margin: EdgeInsets.only(bottom: AppSpacing.md),
+              child: Padding(
+                padding: AppSpacing.paddingMd,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                     ),
-              ),
-              const SizedBox(
-                  height: AppSpacing.sm), // Уменьшенный отступ после заголовка
-
-              // Muted text for the prompt (Contrast Rule)
-              Text(
-                prompt,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: 18,
-                      height: 1.4,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurfaceVariant, // Muted
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      prompt,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            height: 1.5,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => _showHelpBottomSheet(key),
-                  icon: Icon(
-                    Icons.lightbulb_outline,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  label: Text(
-                    'Посмотреть примеры',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(0, 32),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    alignment: Alignment.centerLeft,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Highlighting Card for Input (Gradient Surface + Inset Shadow)
-          GradientCard(
-            simulateLight: true,
-            radius: AppRadius.lg,
-            shadowLevel: ShadowLevel.medium,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(
-                      alpha: Theme.of(context).brightness == Brightness.dark
-                          ? 0.35
-                          : 0.03, // Меньше тени в светлой теме
-                    ),
-                    Colors.transparent,
-                    Colors.white.withValues(
-                      alpha: Theme.of(context).brightness == Brightness.dark
-                          ? 0.03
-                          : 0.02, // Меньше блика в светлой теме
+                    const SizedBox(height: AppSpacing.md),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: FilledButton.icon(
+                        onPressed: () => _showHelpBottomSheet(key),
+                        icon: Icon(
+                          Icons.lightbulb_outline,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? DarkModeColors.iconColor
+                              : LightModeColors.iconColor,
+                        ),
+                        label: const Text('Посмотреть примеры'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
-                  stops: const [0.0, 0.3, 1.0],
                 ),
               ),
+            ),
+            // Вторая карточка: поле для ввода
+            GradientCard(
+              radius: AppRadius.md,
               child: TextField(
                 controller: controller,
                 autofocus: true,
+                scrollPadding: const EdgeInsets.only(bottom: 120),
                 keyboardType: TextInputType.multiline,
                 textCapitalization: TextCapitalization.sentences,
                 textInputAction:
@@ -474,18 +464,21 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                   }
                 },
                 maxLines: null,
-                minLines: 8,
+                minLines: 6,
                 decoration: InputDecoration(
                   hintText: 'Ваш ответ...',
                   hintStyle: TextStyle(
                     color: Theme.of(context)
                         .colorScheme
-                        .outline
+                        .onSurfaceVariant
                         .withValues(alpha: 0.5),
                   ),
-                  filled: false,
+                  filled: true,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? DarkModeColors.inputField
+                      : LightModeColors.inputField,
                   border: InputBorder.none,
-                  contentPadding: AppSpacing.paddingLg,
+                  contentPadding: AppSpacing.paddingMd,
                 ),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       height: 1.5,
@@ -493,9 +486,8 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                     ),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xxl),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -503,6 +495,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
   @override
   Widget build(BuildContext context) {
     final isLastStep = _currentStep == 6;
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return PopScope(
       canPop: false,
@@ -511,6 +504,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         _handleClose();
       },
       child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           centerTitle: true,
           title: Text(
@@ -543,29 +537,38 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                 itemBuilder: (context, index) => _buildStepContent(index),
               ),
             ),
-            AnimatedPadding(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: SafeArea(
+            if (!isKeyboardVisible)
+              SafeArea(
                 top: false,
                 child: Padding(
-                  padding: AppSpacing.paddingLg,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton.icon(
+                        child: FilledButton.icon(
                           onPressed: _prevStep,
                           icon: const Icon(Icons.arrow_back),
                           label: Text(_currentStep == 0 ? 'Отмена' : 'Назад'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          style: FilledButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? DarkModeColors.secondaryButtonBackground
+                                    : LightModeColors.secondaryButtonBackground,
+                            foregroundColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? DarkModeColors.secondaryButtonText
+                                    : LightModeColors.secondaryButtonText,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: FilledButton.icon(
                           onPressed: _isSaving
@@ -576,10 +579,14 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                           ),
                           label: Text(isLastStep ? 'Сохранить' : 'Далее'),
                           style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: isLastStep
-                                ? Colors.green
-                                : Theme.of(context).colorScheme.primary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),
@@ -587,7 +594,6 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

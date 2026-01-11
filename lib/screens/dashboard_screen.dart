@@ -7,7 +7,6 @@ import 'package:antibet/services/database_service.dart';
 import 'package:antibet/services/export_service.dart';
 import 'package:antibet/theme.dart';
 import 'package:antibet/widgets/gradient_card.dart';
-import 'package:antibet/core/theme/app_shadows.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -113,11 +112,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
+            child: Text(
+              'Отмена',
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? DarkModeColors.iconColor
+                    : LightModeColors.iconColor,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Удалить'),
+            child: Text(
+              'Удалить',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ),
         ],
       ),
@@ -161,68 +170,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: AppSpacing.paddingMd,
             child: Column(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withValues(alpha: 0.25),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(
-                          alpha: Theme.of(context).brightness == Brightness.dark
-                              ? 0.25
-                              : 0.04,
-                        ),
-                        Colors.transparent,
-                        Colors.white.withValues(
-                          alpha: Theme.of(context).brightness == Brightness.dark
-                              ? 0.03
-                              : 0.5,
-                        ),
-                      ],
-                      stops: const [0.0, 0.35, 1.0],
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Поиск записей...',
+                    prefixIcon: Icon(Icons.search,
+                        color: Theme.of(context).colorScheme.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
-                    boxShadow: AppShadows.inset(context),
                   ),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Поиск записей...',
-                      prefixIcon: Icon(Icons.search,
-                          color: Theme.of(context).colorScheme.primary),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: false,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                    ),
-                    onChanged: _filterEntries,
-                  ),
+                  onChanged: _filterEntries,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: _exportData,
-                        icon: const Icon(Icons.share),
+                        icon: Icon(
+                          Icons.share,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? DarkModeColors.iconColor
+                              : LightModeColors.iconColor,
+                        ),
                         label: const Text('Экспорт CSV'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonBackground
+                                  : LightModeColors.secondaryButtonBackground,
+                          foregroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonText
+                                  : LightModeColors.secondaryButtonText,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: _copyForAIAnalysis,
-                        icon: const Icon(Icons.psychology),
+                        icon: const Icon(
+                          Icons.psychology,
+                          color: Color(0xFF08b0bb),
+                        ),
                         label: const Text('Копировать для AI'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonBackground
+                                  : LightModeColors.secondaryButtonBackground,
+                          foregroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonText
+                                  : LightModeColors.secondaryButtonText,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -309,7 +320,6 @@ class EntryCard extends StatelessWidget {
     return GradientCard(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       radius: AppRadius.md,
-      shadowLevel: ShadowLevel.small,
       onTap: onTap,
       child: Padding(
         padding: AppSpacing.paddingMd,
