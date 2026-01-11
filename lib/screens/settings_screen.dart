@@ -92,7 +92,8 @@ AntiBet - это безопасное, приватное приложение �
                   children: [
                     Icon(
                       Icons.health_and_safety,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      // "Warning" акцент (лучше подходит, чем error-красный)
+                      color: const Color(0xFFFFA000),
                       size: 24,
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -132,7 +133,14 @@ AntiBet - это безопасное, приватное приложение �
           children: [
             Row(
               children: [
-                Icon(icon, color: Theme.of(context).colorScheme.primary),
+                Icon(
+                  icon,
+                  color: icon == Icons.psychology
+                      ? const Color(0xFF08b0bb)
+                      : (Theme.of(context).brightness == Brightness.dark
+                          ? DarkModeColors.iconColor
+                          : LightModeColors.iconColor),
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(

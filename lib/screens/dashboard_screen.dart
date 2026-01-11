@@ -169,11 +169,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
-                    filled: true,
-                    fillColor: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withValues(alpha: 0.3),
                   ),
                   onChanged: _filterEntries,
                 ),
@@ -181,18 +176,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: _exportData,
-                        icon: const Icon(Icons.share),
+                        icon: Icon(
+                          Icons.share,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? DarkModeColors.iconColor
+                              : LightModeColors.iconColor,
+                        ),
                         label: const Text('Экспорт CSV'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonBackground
+                                  : LightModeColors.secondaryButtonBackground,
+                          foregroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonText
+                                  : LightModeColors.secondaryButtonText,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: _copyForAIAnalysis,
-                        icon: const Icon(Icons.psychology),
+                        icon: const Icon(
+                          Icons.psychology,
+                          color: Color(0xFF08b0bb),
+                        ),
                         label: const Text('Копировать для AI'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonBackground
+                                  : LightModeColors.secondaryButtonBackground,
+                          foregroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonText
+                                  : LightModeColors.secondaryButtonText,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
                       ),
                     ),
                   ],

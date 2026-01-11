@@ -32,7 +32,7 @@ class GradientCard extends StatelessWidget {
 
     // Base colors for brand gradient
     final primary = cs.primary;
-    final secondary = isDark ? cs.secondary : cs.tertiary;
+    final secondary = cs.secondary;
 
     LinearGradient borderGradient;
 
@@ -65,8 +65,11 @@ class GradientCard extends StatelessWidget {
 
     final shadowOpacity = isDark ? 0.35 : 0.08; // Чуть глубже тени
 
+    // Убеждаемся, что радиус не отрицательный
+    final innerRadius = (radius - borderWidth).clamp(0.0, double.infinity);
+
     final content = ClipRRect(
-      borderRadius: BorderRadius.circular(radius - borderWidth),
+      borderRadius: BorderRadius.circular(innerRadius),
       child: Material(
         color: backgroundColor ?? cs.surface,
         child: onTap == null

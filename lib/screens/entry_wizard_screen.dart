@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:antibet/models/diary_entry.dart';
 import 'package:antibet/services/database_service.dart';
 import 'package:antibet/theme.dart';
-import 'package:antibet/widgets/styled_card.dart';
+import 'package:antibet/widgets/gradient_card.dart';
 
 class EntryWizardScreen extends StatefulWidget {
   const EntryWizardScreen({super.key});
@@ -123,7 +123,14 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Остаться'),
+            child: Text(
+              'Остаться',
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? DarkModeColors.iconColor
+                    : LightModeColors.iconColor,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -267,8 +274,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                       ),
                       child: Icon(
                         Icons.lightbulb_outline,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? DarkModeColors.iconColor
+                            : LightModeColors.iconColor,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -354,7 +362,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
             height: 8,
             decoration: BoxDecoration(
               color: isCompleted || isCurrent
-                  ? Theme.of(context).colorScheme.primary
+                  ? (Theme.of(context).brightness == Brightness.dark
+                      ? DarkModeColors.iconColor
+                      : LightModeColors.iconColor)
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(4),
             ),
@@ -374,134 +384,108 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: Center(
-        child: SingleChildScrollView(
-          padding: AppSpacing.paddingLg,
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: StyledCard(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800, // Sharp Heading
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-
-                // Muted text for the prompt
-                Text(
-                  prompt,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 16,
-                        height: 1.5,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant, // Muted shade
-                      ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // "Some Action" button style (Посмотреть примеры)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white.withValues(alpha: 0.05)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Theme.of(context).brightness == Brightness.dark
-                          ? Border.all(
-                              color: Colors.white.withValues(alpha: 0.1))
-                          : null,
-                      boxShadow:
-                          Theme.of(context).brightness == Brightness.light
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ]
-                              : [],
+      child: SingleChildScrollView(
+        padding: AppSpacing.paddingLg,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Первая карточка: заголовок, описание и кнопка "Посмотреть примеры"
+            GradientCard(
+              radius: AppRadius.md,
+              margin: EdgeInsets.only(bottom: AppSpacing.md),
+              child: Padding(
+                padding: AppSpacing.paddingMd,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                     ),
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: () => _showHelpBottomSheet(key),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          child: Text(
-                            'Посмотреть примеры',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      prompt,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            height: 1.5,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: FilledButton.icon(
+                        onPressed: () => _showHelpBottomSheet(key),
+                        icon: Icon(
+                          Icons.lightbulb_outline,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? DarkModeColors.iconColor
+                              : LightModeColors.iconColor,
+                        ),
+                        label: const Text('Посмотреть примеры'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-
-                const SizedBox(height: AppSpacing.xl),
-
-                // TextField Area
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.black.withValues(alpha: 0.3)
-                        : Colors.grey.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: TextField(
-                    controller: controller,
-                    autofocus: true,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: isLastStep
-                        ? TextInputAction.done
-                        : TextInputAction.next,
-                    onSubmitted: (_) {
-                      if (isLastStep) {
-                        _saveEntry();
-                      } else {
-                        _nextStep();
-                      }
-                    },
-                    maxLines: null,
-                    minLines: 6,
-                    decoration: InputDecoration(
-                      hintText: 'Ваш ответ...',
-                      hintStyle: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.5),
-                      ),
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      border: InputBorder.none,
-                      contentPadding: AppSpacing.paddingMd,
-                    ),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          height: 1.5,
-                          fontSize: 16,
-                        ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            // Вторая карточка: поле для ввода
+            GradientCard(
+              radius: AppRadius.md,
+              child: TextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction:
+                    isLastStep ? TextInputAction.done : TextInputAction.next,
+                onSubmitted: (_) {
+                  if (isLastStep) {
+                    _saveEntry();
+                  } else {
+                    _nextStep();
+                  }
+                },
+                maxLines: null,
+                minLines: 6,
+                decoration: InputDecoration(
+                  hintText: 'Ваш ответ...',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withValues(alpha: 0.5),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? DarkModeColors.inputField
+                      : LightModeColors.inputField,
+                  border: InputBorder.none,
+                  contentPadding: AppSpacing.paddingMd,
+                ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      height: 1.5,
+                      fontSize: 16,
+                    ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -551,48 +535,59 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                 itemBuilder: (context, index) => _buildStepContent(index),
               ),
             ),
-            AnimatedPadding(
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: AppSpacing.paddingLg,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _prevStep,
-                          icon: const Icon(Icons.arrow_back),
-                          label: Text(_currentStep == 0 ? 'Отмена' : 'Назад'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: _prevStep,
+                        icon: const Icon(Icons.arrow_back),
+                        label: Text(_currentStep == 0 ? 'Отмена' : 'Назад'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonBackground
+                                  : LightModeColors.secondaryButtonBackground,
+                          foregroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? DarkModeColors.secondaryButtonText
+                                  : LightModeColors.secondaryButtonText,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _isSaving
-                              ? null
-                              : (isLastStep ? _saveEntry : _nextStep),
-                          icon: Icon(
-                            isLastStep ? Icons.check : Icons.arrow_forward,
-                          ),
-                          label: Text(isLastStep ? 'Сохранить' : 'Далее'),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: isLastStep
-                                ? Colors.green
-                                : Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: _isSaving
+                            ? null
+                            : (isLastStep ? _saveEntry : _nextStep),
+                        icon: Icon(
+                          isLastStep ? Icons.check : Icons.arrow_forward,
+                        ),
+                        label: Text(isLastStep ? 'Сохранить' : 'Далее'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -19,6 +19,34 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseService _dbService = DatabaseService();
 
+  Color _accentBlue(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? DarkModeColors.iconColor
+          : LightModeColors.iconColor;
+
+  // Вспомогательный цвет для нейтральных иконок (как текст)
+  Color _neutralIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
+
+  static const Color _accentTeal = Color(0xFF08B0BB);
+  static const Color _accentOrange = Color(0xFFFFA000);
+
+  Color _iconAccent(BuildContext context, IconData icon) {
+    if (icon == Icons.people || icon == Icons.psychology) return _accentTeal;
+    if (icon == Icons.warning_amber_rounded) return _accentOrange;
+    if (icon == Icons.favorite_border) {
+      return Theme.of(context).colorScheme.error;
+    }
+    if (icon == Icons.check_circle_outline) return _accentTeal;
+    // place, lightbulb
+    if (icon == Icons.place || icon == Icons.lightbulb_outline) {
+      return _accentBlue(context);
+    }
+
+    // calendar, help и другие нейтральные
+    return _neutralIconColor(context);
+  }
+
   final TextEditingController _placeController = TextEditingController();
   final TextEditingController _companyController = TextEditingController();
   final TextEditingController _circumstancesController =
@@ -189,7 +217,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                         child: Row(
                           children: [
                             Icon(Icons.calendar_today,
-                                color: Theme.of(context).colorScheme.primary),
+                                color:
+                                    _iconAccent(context, Icons.calendar_today)),
                             const SizedBox(width: AppSpacing.sm),
                             Text(
                               DateFormat('dd.MM.yyyy HH:mm').format(_entryDate),
@@ -263,7 +292,13 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                           ? 'Обновить запись'
                           : 'Сохранить запись'),
                       style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -286,7 +321,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+            Icon(icon, size: 20, color: _iconAccent(context, icon)),
             const SizedBox(width: AppSpacing.xs),
             Text(
               label,
@@ -301,7 +336,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               child: Icon(
                 Icons.help_outline,
                 size: 18,
-                color: Theme.of(context).colorScheme.secondary,
+                color: _iconAccent(context, Icons.help_outline),
               ),
             ),
           ],
@@ -315,11 +350,6 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-            filled: true,
-            fillColor: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.3),
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {

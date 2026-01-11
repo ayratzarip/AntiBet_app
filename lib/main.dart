@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'nav.dart';
@@ -10,9 +11,24 @@ import 'services/sqflite_platform_init.dart';
 /// - go_router navigation
 /// - Material 3 theming with light/dark modes
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await initSqflitePlatform();
-  runApp(const MyApp());
+  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+    };
+
+    try {
+      await initSqflitePlatform();
+    } catch (e) {
+      debugPrint('Platform init error: $e');
+    }
+
+    runApp(const MyApp());
+  }, (error, stackTrace) {
+    debugPrint('Uncaught error: $error');
+    debugPrint('Stack trace: $stackTrace');
+  });
 }
 
 class MyApp extends StatelessWidget {
