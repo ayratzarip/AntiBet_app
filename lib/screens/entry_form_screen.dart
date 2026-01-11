@@ -344,6 +344,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         const SizedBox(height: AppSpacing.xs),
         TextFormField(
           controller: controller,
+          scrollPadding: const EdgeInsets.only(bottom: 120),
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: 'Введите $label...',

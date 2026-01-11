@@ -451,6 +451,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
               child: TextField(
                 controller: controller,
                 autofocus: true,
+                scrollPadding: const EdgeInsets.only(bottom: 120),
                 keyboardType: TextInputType.multiline,
                 textCapitalization: TextCapitalization.sentences,
                 textInputAction:
@@ -494,6 +495,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
   @override
   Widget build(BuildContext context) {
     final isLastStep = _currentStep == 6;
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return PopScope(
       canPop: false,
@@ -535,62 +537,63 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                 itemBuilder: (context, index) => _buildStepContent(index),
               ),
             ),
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: _prevStep,
-                        icon: const Icon(Icons.arrow_back),
-                        label: Text(_currentStep == 0 ? 'Отмена' : 'Назад'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? DarkModeColors.secondaryButtonBackground
-                                  : LightModeColors.secondaryButtonBackground,
-                          foregroundColor:
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? DarkModeColors.secondaryButtonText
-                                  : LightModeColors.secondaryButtonText,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+            if (!isKeyboardVisible)
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _prevStep,
+                          icon: const Icon(Icons.arrow_back),
+                          label: Text(_currentStep == 0 ? 'Отмена' : 'Назад'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? DarkModeColors.secondaryButtonBackground
+                                    : LightModeColors.secondaryButtonBackground,
+                            foregroundColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? DarkModeColors.secondaryButtonText
+                                    : LightModeColors.secondaryButtonText,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: _isSaving
-                            ? null
-                            : (isLastStep ? _saveEntry : _nextStep),
-                        icon: Icon(
-                          isLastStep ? Icons.check : Icons.arrow_forward,
-                        ),
-                        label: Text(isLastStep ? 'Сохранить' : 'Далее'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _isSaving
+                              ? null
+                              : (isLastStep ? _saveEntry : _nextStep),
+                          icon: Icon(
+                            isLastStep ? Icons.check : Icons.arrow_forward,
+                          ),
+                          label: Text(isLastStep ? 'Сохранить' : 'Далее'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

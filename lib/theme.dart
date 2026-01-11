@@ -125,6 +125,9 @@ ThemeData get lightTheme => ThemeData(
           foregroundColor: LightModeColors.onPrimary,
         ),
       ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: LightModeColors.textPrimary,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: LightModeColors.inputField,
@@ -171,6 +174,9 @@ ThemeData get darkTheme => ThemeData(
           backgroundColor: DarkModeColors.primary,
           foregroundColor: DarkModeColors.onPrimary,
         ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: DarkModeColors.textPrimary,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
