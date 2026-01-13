@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>AntiBet</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Description">
+  <meta name="description" content="AntiBet documentation">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
 </head>
@@ -13,10 +13,13 @@
   <script>
     window.$docsify = {
       name: 'AntiBet',
-      repo: ''
+      repo: '', // если есть репозиторий на GitHub, укажите: 'username/repo'
+      homepage: 'README.md', // явно указываем главную страницу
+      loadSidebar: true,     // если хотите использовать _sidebar.md
+      subMaxLevel: 3,
+      auto2top: true
     }
   </script>
-  <!-- Подключение docsify -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
 </body>
 </html>
