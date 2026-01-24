@@ -58,7 +58,7 @@ AntiBet — это больше, чем просто дневник. Это ва
 
 ### Запуск проекта
 
-1.  Убедитесь, что установлен [Flutter SDK](https://docs.flutter.dev/get-started/install).
+1.  Убедитесь, что у Вас установлен [Flutter SDK](https://docs.flutter.dev/get-started/install).
 2.  Клонируйте репозиторий.
 3.  Установите зависимости:
     ```bash
