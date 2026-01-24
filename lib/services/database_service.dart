@@ -28,7 +28,7 @@ class DatabaseService {
 
       return await openDatabase(
         path,
-        version: 2,
+        version: 4,
         onCreate: (db, version) async {
           debugPrint('Creating database tables...');
           await db.execute('''
@@ -42,7 +42,9 @@ class DatabaseService {
               trigger TEXT NOT NULL,
               thoughts TEXT NOT NULL,
               sensations TEXT NOT NULL,
-              actions TEXT NOT NULL
+              intensity TEXT NOT NULL,
+              actions TEXT NOT NULL,
+              consequences TEXT NOT NULL DEFAULT ''
             )
           ''');
           await db.execute(
@@ -77,6 +79,17 @@ class DatabaseService {
             await db.execute(
                 'CREATE INDEX IF NOT EXISTS idx_diary_entries_dateMs ON diary_entries(dateMs)');
             debugPrint('Migration to version 2 completed');
+          }
+          if (oldVersion < 3) {
+            debugPrint('Migrating database to version 3...');
+            await db.execute('ALTER TABLE diary_entries ADD COLUMN intensity TEXT NOT NULL DEFAULT ""');
+            debugPrint('Migration to version 3 completed');
+          }
+          if (oldVersion < 4) {
+            debugPrint('Migrating database to version 4...');
+            await db.execute(
+                'ALTER TABLE diary_entries ADD COLUMN consequences TEXT NOT NULL DEFAULT ""');
+            debugPrint('Migration to version 4 completed');
           }
         },
         onOpen: (db) {
@@ -130,9 +143,11 @@ class DatabaseService {
           trigger LIKE ? OR 
           thoughts LIKE ? OR 
           sensations LIKE ? OR 
-          actions LIKE ?
+          intensity LIKE ? OR 
+          actions LIKE ? OR 
+          consequences LIKE ?
         ''',
-        whereArgs: List.filled(7, searchPattern),
+        whereArgs: List.filled(9, searchPattern),
         orderBy: 'dateMs DESC',
       );
       return maps.map((map) => DiaryEntry.fromJson(map)).toList();

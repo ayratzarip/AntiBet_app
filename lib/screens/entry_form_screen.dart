@@ -33,11 +33,16 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
 
   Color _iconAccent(BuildContext context, IconData icon) {
     if (icon == Icons.people || icon == Icons.psychology) return _accentTeal;
-    if (icon == Icons.warning_amber_rounded) return _accentOrange;
+    if (icon == Icons.warning_amber_rounded || icon == Icons.speed) {
+      return _accentOrange;
+    }
     if (icon == Icons.favorite_border) {
       return Theme.of(context).colorScheme.error;
     }
     if (icon == Icons.check_circle_outline) return _accentTeal;
+    if (icon == Icons.error_outline) {
+      return Theme.of(context).colorScheme.error;
+    }
     // place, lightbulb
     if (icon == Icons.place || icon == Icons.lightbulb_outline) {
       return _accentBlue(context);
@@ -54,7 +59,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   final TextEditingController _triggerController = TextEditingController();
   final TextEditingController _thoughtsController = TextEditingController();
   final TextEditingController _sensationsController = TextEditingController();
+  final TextEditingController _intensityController = TextEditingController();
   final TextEditingController _actionsController = TextEditingController();
+  final TextEditingController _consequencesController = TextEditingController();
 
   DateTime _entryDate = DateTime.now();
   bool _isLoading = false;
@@ -67,7 +74,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     'trigger': 'Триггеры',
     'thoughts': 'Мысли',
     'sensations': 'Телесные ощущения',
+    'intensity': 'Интенсивность тяги',
     'actions': 'Действия',
+    'consequences': 'Последствия',
   };
 
   final Map<String, String> _helpText = {
@@ -83,8 +92,12 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         'О чем Вы подумали в этот момент? Постарайтесь просто зафиксировать поток мыслей, не осуждая себя. \nЧастые мысли: \n - "Только один раз, и всё". \n - "Мне нужно отыграться". \n - "Сегодня точно повезет". \n - "Я неудачник, всё равно уже всё потерял". \n - "Как отдать долги? Только игрой"',
     'sensations':
         'Тяга к игре часто отражается в теле. Попробуйте заметить напряжение, учащенное сердцебиение или другие сигналы организма. \nПри желании играть часто возникают: \n - Учащенное сердцебиение, волнение. \n - Напряжение в груди или животе. \n - Дрожь в руках, потливость. \n - Ощущение жара или холода. \n - Сжатие в горле, трудно дышать.',
+    'intensity':
+        'Оцените силу вашего желания играть по шкале от 1 до 10, где 1 — легкое желание, которое можно игнорировать, а 10 — неконтролируемая тяга, которая полностью захватывает внимание. \nПримеры: \n - 1-3: Легкое желание, можно отвлечься. \n - 4-6: Умеренная тяга, требует усилий для сопротивления. \n - 7-8: Сильное желание, трудно думать о чем-то другом. \n - 9-10: Очень сильная тяга, почти неконтролируемая.',
     'actions':
-        'Как Вы справляетесь с возникшим желанием? Опишите, что Вы сделали, чтобы не поддаться импульсу, или как планируете поступить. \nПримеры действий: \n - Пытаюсь отвлечься на работу или хобби. \n - Запрещаю себе думать об этом. \n - Звоню другу или близкому человеку. \n - Иду на прогулку или в спортзал. \n - Делаю дыхательные упражнения. \n - Записываю мысли в дневник. \n - Читаю мотивирующие материалы.',
+        'Как вы отреагировали на желание? Опишите ваши действия честно. Это поможет понять, что помогает вам держаться, а что предшествует срыву. \nПримеры действий: \n - Позвонил наставнику. \n - Включил блокировку сайта. \n - Ушел с головой в работу. \n - Отвлекся на социальную сеть, чтобы убить время. \n - Зашёл на сайт или в приложение «просто посмотреть».\n - Не сдержался и сделал ставку.',
+    'consequences':
+        'Заполняйте только в случае срыва. Опишите финансовые потери и ваше эмоциональное состояние после игры, чтобы зафиксировать реальную цену срыва. \nПримеры: \n - Проиграл 10 000 рублей, отложенных на аренду. Чувствую опустошение и страх перед завтрашним днем. \n - Сначала выиграл, но не смог остановиться и слил всё под ноль и залез в кредитку. Минус 25 000 рублей. \n - Поднял на фрибет, вывел, через два дня снова зашёл всё слил, взял три кредита в МФО.',
   };
 
   @override
@@ -103,7 +116,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     _triggerController.dispose();
     _thoughtsController.dispose();
     _sensationsController.dispose();
+    _intensityController.dispose();
     _actionsController.dispose();
+    _consequencesController.dispose();
     super.dispose();
   }
 
@@ -121,7 +136,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         _triggerController.text = entry.trigger;
         _thoughtsController.text = entry.thoughts;
         _sensationsController.text = entry.sensations;
+        _intensityController.text = entry.intensity;
         _actionsController.text = entry.actions;
+        _consequencesController.text = entry.consequences;
         _isLoading = false;
       });
     } catch (e) {
@@ -166,7 +183,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         trigger: _triggerController.text.trim(),
         thoughts: _thoughtsController.text.trim(),
         sensations: _sensationsController.text.trim(),
+        intensity: _intensityController.text.trim(),
         actions: _actionsController.text.trim(),
+        consequences: _consequencesController.text.trim(),
       );
 
       if (_existingEntry != null) {
@@ -278,11 +297,28 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _buildTextField(
+                      controller: _intensityController,
+                      label: 'Интенсивность тяги',
+                      icon: Icons.speed,
+                      helpKey: 'intensity',
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildTextField(
                       controller: _actionsController,
                       label: 'Действия',
                       icon: Icons.check_circle_outline,
                       helpKey: 'actions',
                       maxLines: 3,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildTextField(
+                      controller: _consequencesController,
+                      label: 'Последствия',
+                      icon: Icons.error_outline,
+                      helpKey: 'consequences',
+                      maxLines: 3,
+                      optional: true,
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     FilledButton.icon(
@@ -315,6 +351,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     required IconData icon,
     required String helpKey,
     int maxLines = 1,
+    bool optional = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,12 +384,15 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
           scrollPadding: const EdgeInsets.only(bottom: 120),
           maxLines: maxLines,
           decoration: InputDecoration(
-            hintText: 'Введите $label...',
+            hintText: optional
+                ? 'Введите $label... (необязательно)'
+                : 'Введите $label...',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
           ),
           validator: (value) {
+            if (optional) return null;
             if (value == null || value.trim().isEmpty) {
               return 'Пожалуйста, введите $label';
             }

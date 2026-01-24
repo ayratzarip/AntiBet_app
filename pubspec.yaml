@@ -1,7 +1,7 @@
 name: antibet
 description: "AntiBet is a serene and secure iOS diary designed to empower individuals on their journey to overcome gambling addiction, offering a private space for CBT self-monitoring with a calming, minimalist interface."
 publish_to: "none"
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.6.0

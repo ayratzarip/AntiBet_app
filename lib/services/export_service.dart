@@ -16,7 +16,9 @@ class ExportService {
         'Триггер',
         'Мысли',
         'Ощущения',
-        'Действия'
+        'Интенсивность тяги',
+        'Действия',
+        'Последствия',
       ],
     ];
 
@@ -29,7 +31,9 @@ class ExportService {
         entry.trigger,
         entry.thoughts,
         entry.sensations,
+        entry.intensity,
         entry.actions,
+        entry.consequences,
       ]);
     }
 
@@ -68,7 +72,9 @@ class ExportService {
       buffer.writeln('Trigger: ${entry.trigger}');
       buffer.writeln('Thoughts: ${entry.thoughts}');
       buffer.writeln('Sensations: ${entry.sensations}');
+      buffer.writeln('Intensity: ${entry.intensity}');
       buffer.writeln('Actions: ${entry.actions}');
+      buffer.writeln('Consequences: ${entry.consequences}');
       buffer.writeln();
     }
 

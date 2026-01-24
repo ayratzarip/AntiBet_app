@@ -10,7 +10,9 @@ class DiaryEntry {
   final String trigger;
   final String thoughts;
   final String sensations;
+  final String intensity;
   final String actions;
+  final String consequences;
 
   DiaryEntry({
     String? id,
@@ -21,7 +23,9 @@ class DiaryEntry {
     required this.trigger,
     required this.thoughts,
     required this.sensations,
+    required this.intensity,
     required this.actions,
+    this.consequences = '',
   })  : id = id ?? const Uuid().v4(),
         date = date ?? DateTime.now();
 
@@ -41,7 +45,9 @@ class DiaryEntry {
         'trigger': trigger,
         'thoughts': thoughts,
         'sensations': sensations,
+        'intensity': intensity,
         'actions': actions,
+        'consequences': consequences,
       };
 
   static DateTime _parseDateFromDb(Map<String, dynamic> json) {
@@ -77,7 +83,9 @@ class DiaryEntry {
         trigger: json['trigger'] as String,
         thoughts: json['thoughts'] as String,
         sensations: json['sensations'] as String,
+        intensity: (json['intensity'] as String?) ?? '',
         actions: json['actions'] as String,
+        consequences: (json['consequences'] as String?) ?? '',
       );
 
   DiaryEntry copyWith({
@@ -89,7 +97,9 @@ class DiaryEntry {
     String? trigger,
     String? thoughts,
     String? sensations,
+    String? intensity,
     String? actions,
+    String? consequences,
   }) =>
       DiaryEntry(
         id: id ?? this.id,
@@ -100,6 +110,8 @@ class DiaryEntry {
         trigger: trigger ?? this.trigger,
         thoughts: thoughts ?? this.thoughts,
         sensations: sensations ?? this.sensations,
+        intensity: intensity ?? this.intensity,
         actions: actions ?? this.actions,
+        consequences: consequences ?? this.consequences,
       );
 }

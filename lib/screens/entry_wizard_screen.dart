@@ -32,6 +32,10 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
   final TextEditingController _thoughtsController = TextEditingController();
   final TextEditingController _sensationsController = TextEditingController();
   final TextEditingController _actionsController = TextEditingController();
+  final TextEditingController _consequencesController = TextEditingController();
+
+  // Для слайдера интенсивности (0-10)
+  double _intensityValue = 0.0;
 
   final List<String> _stepKeys = [
     'place',
@@ -40,7 +44,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     'trigger',
     'thoughts',
     'sensations',
-    'actions'
+    'intensity',
+    'actions',
+    'consequences',
   ];
 
   final Map<String, String> _titles = {
@@ -50,7 +56,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     'trigger': 'Триггеры',
     'thoughts': 'Мысли',
     'sensations': 'Телесные ощущения',
+    'intensity': 'Интенсивность тяги',
     'actions': 'Действия',
+    'consequences': 'Последствия',
   };
 
   final Map<String, String> _helpText = {
@@ -66,8 +74,12 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         'О чем Вы подумали в этот момент? Постарайтесь просто зафиксировать поток мыслей, не осуждая себя. \nЧастые мысли: \n - "Только один раз, и всё". \n - "Мне нужно отыграться". \n - "Сегодня точно повезет". \n - "Я неудачник, всё равно уже всё потерял". \n - "Как отдать долги? Только игрой"',
     'sensations':
         'Тяга к игре часто отражается в теле. Попробуйте заметить напряжение, учащенное сердцебиение или другие сигналы организма. \nПри желании играть часто возникают: \n - Учащенное сердцебиение, волнение. \n - Напряжение в груди или животе. \n - Дрожь в руках, потливость. \n - Ощущение жара или холода. \n - Сжатие в горле, трудно дышать.',
+    'intensity':
+        'Оцените силу вашего желания играть по шкале от 1 до 10, где 1 — легкое желание, которое можно игнорировать, а 10 — неконтролируемая тяга, которая полностью захватывает внимание. \nПримеры: \n - 1-3: Легкое желание, можно отвлечься. \n - 4-6: Умеренная тяга, требует усилий для сопротивления. \n - 7-8: Сильное желание, трудно думать о чем-то другом. \n - 9-10: Очень сильная тяга, почти неконтролируемая.',
     'actions':
-        'Как Вы справляетесь с возникшим желанием? Опишите, что Вы сделали, чтобы не поддаться импульсу, или как планируете поступить. \nПримеры действий: \n - Пытаюсь отвлечься на работу или хобби. \n - Запрещаю себе думать об этом. \n - Звоню другу или близкому человеку. \n - Иду на прогулку или в спортзал. \n - Делаю дыхательные упражнения. \n - Записываю мысли в дневник. \n - Читаю мотивирующие материалы.',
+        'Как вы отреагировали на желание? Опишите ваши действия честно. Это поможет понять, что помогает вам держаться, а что предшествует срыву. \nПримеры действий: \n - Позвонил наставнику. \n - Включил блокировку сайта. \n - Ушел с головой в работу. \n - Отвлекся на социальную сеть, чтобы убить время. \n - Зашёл на сайт или в приложение «просто посмотреть».\n - Не сдержался и сделал ставку.',
+    'consequences':
+        'Заполняйте только в случае срыва. Опишите финансовые потери и ваше эмоциональное состояние после игры, чтобы зафиксировать реальную цену срыва. \nПримеры: \n - Проиграл 10 000 рублей, отложенных на аренду. Чувствую опустошение и страх перед завтрашним днем. \n - Сначала выиграл, но не смог остановиться и слил всё под ноль и залез в кредитку. Минус 25 000 рублей. \n - Поднял с фрибета, вывел. Через два дня снова зашёл, всё слил и набрал три МФО.',
   };
 
   String get _currentKey => _stepKeys[_currentStep];
@@ -79,7 +91,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         _triggerController.text.isNotEmpty ||
         _thoughtsController.text.isNotEmpty ||
         _sensationsController.text.isNotEmpty ||
-        _actionsController.text.isNotEmpty;
+        _intensityValue > 0 ||
+        _actionsController.text.isNotEmpty ||
+        _consequencesController.text.isNotEmpty;
   }
 
   @override
@@ -107,6 +121,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     _thoughtsController.dispose();
     _sensationsController.dispose();
     _actionsController.dispose();
+    _consequencesController.dispose();
     super.dispose();
   }
 
@@ -153,21 +168,26 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
 
   void _nextStep() {
     final currentKey = _stepKeys[_currentStep];
-    final controller = _getControllerForStep(_currentStep);
 
-    if (controller.text.trim().isEmpty) {
-      HapticFeedback.heavyImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Пожалуйста, заполните поле "${_titles[currentKey]}"'),
-        ),
-      );
-      return;
+    // Интенсивность (6) и Последствия (8) — опциональные шаги, пропускаем валидацию
+    final isOptionalStep = _currentStep == 6 || _currentStep == 8;
+    if (!isOptionalStep) {
+      final controller = _getControllerForStep(_currentStep);
+      if (controller == null || controller.text.trim().isEmpty) {
+        HapticFeedback.heavyImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Пожалуйста, заполните поле "${_titles[currentKey]}"'),
+          ),
+        );
+        return;
+      }
     }
 
     HapticFeedback.lightImpact();
 
-    if (_currentStep < 6) {
+    if (_currentStep < 8) {
       _fadeController.reverse().then((_) {
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
@@ -197,13 +217,22 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
   }
 
   Future<void> _saveEntry() async {
-    final controller = _getControllerForStep(_currentStep);
-    if (controller.text.trim().isEmpty) {
-      HapticFeedback.heavyImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пожалуйста, заполните поле "Действия"')),
-      );
-      return;
+    final currentKey = _stepKeys[_currentStep];
+
+    // Интенсивность (6) и Последствия (8) — опциональные, не требуем заполнения
+    final isOptionalStep = _currentStep == 6 || _currentStep == 8;
+    if (!isOptionalStep) {
+      final controller = _getControllerForStep(_currentStep);
+      if (controller == null || controller.text.trim().isEmpty) {
+        HapticFeedback.heavyImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Пожалуйста, заполните поле "${_titles[currentKey]}"'),
+          ),
+        );
+        return;
+      }
     }
 
     HapticFeedback.mediumImpact();
@@ -219,7 +248,9 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         trigger: _triggerController.text.trim(),
         thoughts: _thoughtsController.text.trim(),
         sensations: _sensationsController.text.trim(),
+        intensity: 'Интенсивность тяги ${_intensityValue.round()} из 10',
         actions: _actionsController.text.trim(),
+        consequences: _consequencesController.text.trim(),
       );
 
       await _dbService.insertEntry(entry);
@@ -324,7 +355,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     );
   }
 
-  TextEditingController _getControllerForStep(int index) {
+  TextEditingController? _getControllerForStep(int index) {
     switch (index) {
       case 0:
         return _placeController;
@@ -339,9 +370,13 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
       case 5:
         return _sensationsController;
       case 6:
+        return null; // Интенсивность — слайдер, не контроллер
+      case 7:
         return _actionsController;
+      case 8:
+        return _consequencesController;
       default:
-        return TextEditingController();
+        return null;
     }
   }
 
@@ -350,7 +385,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(7, (index) {
+        children: List.generate(9, (index) {
           final isCompleted = index < _currentStep;
           final isCurrent = index == _currentStep;
 
@@ -379,8 +414,14 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     final controller = _getControllerForStep(index);
     final title = _titles[key]!;
     final help = _helpText[key]!;
-    final prompt = help.split('\n').first.trim();
-    final isLastStep = index == 6;
+    final isIntensityStep = index == 6;
+    final isConsequencesStep = index == 8;
+    final prompt = isIntensityStep
+        ? 'Оцените силу желания играть'
+        : isConsequencesStep
+            ? 'Заполняйте только в случае срыва. Иначе нажмите «Сохранить».'
+            : help.split('\n').first.trim();
+    final isLastStep = index == 8;
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -445,46 +486,59 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
                 ),
               ),
             ),
-            // Вторая карточка: поле для ввода
-            GradientCard(
-              radius: AppRadius.md,
-              child: TextField(
-                controller: controller,
-                autofocus: true,
-                scrollPadding: const EdgeInsets.only(bottom: 120),
-                keyboardType: TextInputType.multiline,
-                textCapitalization: TextCapitalization.sentences,
-                textInputAction:
-                    isLastStep ? TextInputAction.done : TextInputAction.next,
-                onSubmitted: (_) {
-                  if (isLastStep) {
-                    _saveEntry();
-                  } else {
-                    _nextStep();
-                  }
-                },
-                maxLines: null,
-                minLines: 6,
-                decoration: InputDecoration(
-                  hintText: 'Ваш ответ...',
-                  hintStyle: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurfaceVariant
-                        .withValues(alpha: 0.5),
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(context).brightness == Brightness.dark
-                      ? DarkModeColors.inputField
-                      : LightModeColors.inputField,
-                  border: InputBorder.none,
-                  contentPadding: AppSpacing.paddingMd,
-                ),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      height: 1.5,
-                      fontSize: 16,
-                    ),
+            // Вторая карточка: поле для ввода или слайдер — белое/чёрное, без окаймления
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? DarkModeColors.inputField
+                    : LightModeColors.inputField,
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
+              clipBehavior: Clip.antiAlias,
+              child: isIntensityStep
+                  ? _buildIntensitySlider()
+                  : TextField(
+                      controller: controller,
+                      autofocus: true,
+                      scrollPadding: const EdgeInsets.only(bottom: 120),
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      textInputAction: isLastStep
+                          ? TextInputAction.done
+                          : TextInputAction.next,
+                      onSubmitted: (_) {
+                        if (isLastStep) {
+                          _saveEntry();
+                        } else {
+                          _nextStep();
+                        }
+                      },
+                      maxLines: null,
+                      minLines: 6,
+                      decoration: InputDecoration(
+                        hintText: isConsequencesStep
+                            ? 'Опишите последствия срыва или оставьте пустым...'
+                            : 'Ваш ответ...',
+                        hintStyle: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withValues(alpha: 0.5),
+                        ),
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        contentPadding: AppSpacing.paddingMd,
+                      ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            height: 1.5,
+                            fontSize: 16,
+                          ),
+                    ),
             ),
           ],
         ),
@@ -492,9 +546,99 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
     );
   }
 
+  Widget _buildIntensitySlider() {
+    // Вычисляем цвет на основе значения (от зеленого к красному)
+    final progress = _intensityValue / 10.0;
+    final color = Color.lerp(Colors.green, Colors.red, progress)!;
+
+    return Padding(
+      padding: AppSpacing.paddingLg,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: AppSpacing.md),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Фоновый градиент — по центру, на одной линии с треком слайдера
+              Positioned.fill(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => Center(
+                    child: SizedBox(
+                      width: constraints.maxWidth,
+                      height: 4,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(2),
+                          gradient: const LinearGradient(
+                            colors: [Colors.green, Colors.red],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Слайдер поверх градиента
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 4,
+                  activeTrackColor: Colors.transparent,
+                  inactiveTrackColor: Colors.transparent,
+                  thumbColor: color,
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 12),
+                  overlayShape:
+                      const RoundSliderOverlayShape(overlayRadius: 24),
+                  overlayColor: color.withValues(alpha: 0.12),
+                  valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                  showValueIndicator: ShowValueIndicator.always,
+                ),
+                child: Slider(
+                  value: _intensityValue,
+                  min: 0,
+                  max: 10,
+                  label: _intensityValue.round().toString(),
+                  onChanged: (value) {
+                    setState(() {
+                      _intensityValue = value;
+                    });
+                    HapticFeedback.selectionClick();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '0',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              Text(
+                '10',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isLastStep = _currentStep == 6;
+    final isLastStep = _currentStep == 8;
     final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return PopScope(
@@ -508,7 +652,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            'Шаг ${_currentStep + 1} из 7',
+            'Шаг ${_currentStep + 1} из 9',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.bold,
@@ -533,7 +677,7 @@ class _EntryWizardScreenState extends State<EntryWizardScreen>
               child: PageView.builder(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: 7,
+                itemCount: 9,
                 itemBuilder: (context, index) => _buildStepContent(index),
               ),
             ),
